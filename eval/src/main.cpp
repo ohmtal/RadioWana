@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: MIT
 //-----------------------------------------------------------------------------
 // RadioWanaEval
+//         {"Icy-MetaData", "1"},
+//         {"User-Agent", "RadioWana/2.0"}
 //-----------------------------------------------------------------------------
 
 #include <SDL3/SDL_main.h>
@@ -14,44 +16,9 @@
 
 #include <imgui.h>
 #include <miniaudio.h>
-// #include <httplib.h>
-#include <curl/curl.h>
 
-#include <iostream>
-#include <thread>
+#include "HttpsStream.h"
 
-// -----------------------------------------------------------------------------
-// Url parser ... still can't believe httplib have no url parser ...
-// -----------------------------------------------------------------------------
-
-struct URLParts {
-    std::string protocol;
-    std::string hostname;
-    std::string path;
-};
-
-URLParts parseURL(const std::string& url) {
-    URLParts parts;
-
-    size_t pos = url.find("://");
-    if (pos != std::string::npos) {
-        parts.protocol = url.substr(0, pos);
-        pos += 3;
-    } else {
-        pos = 0;
-    }
-
-    size_t pathStart = url.find('/', pos);
-    if (pathStart != std::string::npos) {
-        parts.hostname = url.substr(pos, pathStart - pos);
-        parts.path = url.substr(pathStart);
-    } else {
-        parts.hostname = url.substr(pos);
-        parts.path = "/";
-    }
-
-    return parts;
-}
 
 
 
@@ -65,18 +32,17 @@ class RadioWanaEval
 
 
 private:
-     // FIXME httplib does not open this =>
-     // std::string mUrl = "https://streams.radiobob.de/powermetal/mp3-192/streams.radiobob.de/";
+     std::string mUrl = "https://streams.radiobob.de/powermetal/mp3-192/streams.radiobob.de/";
      // std::string mUrl = "https://stream.rockantenne.de/rockantenne/stream/mp3";
-    std::string mUrl = "http://yourip.chatwana.net/";
+    // std::string mUrl = "http://yourip.chatwana.net/";
 
-     bool mStreamOpen = false;
 
      void OnConsoleCommand(ImConsole* console, const char* cmdline) {}
 
      BaseFlux::Main mBaseFlux;
 public:
     ImConsole mConsole;
+    RadioWana::HttpStream mHttpsStream;
     //--------------------------------------------------------------------------
     bool Initialize()   {
 
@@ -102,8 +68,7 @@ public:
         mBaseFlux.OnEvent  = [&](const SDL_Event event) { OnEvent(event);};
         mBaseFlux.OnShutDown = [&]() { OnShutDown();};
 
-
-        InitErrorLog("RadioWanaEval.log", "RadioWanaEval", "v0");
+        InitErrorLog("RadioWanaEval.log", "RadioWanaEval", "1");
         return true;
 
     }
@@ -115,113 +80,13 @@ public:
 
     }
     //--------------------------------------------------------------------------
-
     void OnEvent(const SDL_Event event) {}
-
     void OnShutDown() {
         SDL_SetLogOutputFunction(nullptr, nullptr); // log must be unlinked first!!
+        mHttpsStream.shutdownCurl();
     }
     //--------------------------------------------------------------------------
     // ..... Stream .....
-    //--------------------------------------------------------------------------
-
-    bool closeStream() { return true; }
-
-    //FIXME TEST ONLY! DO NOT USE A STREAM HERE !!
-    bool openURL() {
-
-            CURL *curl;
-            CURLcode res;
-
-
-            curl_global_init(CURL_GLOBAL_DEFAULT);
-
-
-            curl = curl_easy_init();
-            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-            if(curl) {
-                // URL
-                curl_easy_setopt(curl, CURLOPT_URL, mUrl.c_str());
-
-                // SSL Verify:
-                // curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
-
-                res = curl_easy_perform(curl);
-
-                // Fehlerprüfung
-                if(res != CURLE_OK) {
-                    dLog("[error] %s ",  curl_easy_strerror(res));
-                } else {
-                    // Success, print the data
-                    // Log("%s", data.memory);
-                    dLog("[info] success");
-                }
-
-                curl_easy_cleanup(curl);
-            }
-
-            curl_global_cleanup();
-            // free(data.memory);
-
-            return true;
-    }
-
-    // bool openStream() {
-    //     mStreamOpen = false;
-    //
-    //      URLParts parts = parseURL(mUrl);
-    //
-    //      dLog("proto =>  %s  host => %s ::: path => %s", parts.protocol.c_str(), parts.hostname.c_str(), parts.path.c_str());
-    //
-    //
-    //     // httplib::SSLClient cli(parts.protocol +  parts.hostname); // => [error] Could not establish connection
-    //     httplib::SSLClient cli(parts.hostname); // => [error] Failed to read connection
-    //     cli.enable_server_certificate_verification(true);
-    //
-    //     // httplib::Client cli(parts.protocol + parts.hostname); //=> [error] Could not establish connection
-    //
-    //     cli.set_connection_timeout(60);
-    //     cli.set_follow_location(true);
-    //
-    //
-    //
-    //     httplib::Headers headers = {
-    //         {"Icy-MetaData", "1"},
-    //         {"User-Agent", "RadioWana/2.0"}
-    //         // {"User-Agent", "Mozilla/5.0"}
-    //     };
-    //
-    //     // Stream asynchron
-    //     auto res = cli.Get(parts.path, headers,
-    //                        [&](const httplib::Response &response) {
-    //                            if (response.status == 200) {
-    //                                mStreamOpen = true;
-    //                                // FIXME Content-Type (audio/mpeg )
-    //
-    //                                return true;
-    //                            }
-    //                            dLog("HTTP Response: %d", response.status);
-    //                            return false;
-    //                        },
-    //                        [&](const char *data, size_t data_length) {
-    //                            dLog("got data %d", (int)data_length);
-    //
-    //                            //FIXME handle data chunks
-    //                            // audio data
-    //                            // ICY - Meta Data
-    //                            return false; // true;
-    //                        }
-    //     );
-    //
-    //     if (!res) {
-    //         auto err = res.error();
-    //         dLog("[error] %s", httplib::to_string(err).c_str());
-    //         return false;
-    //     }
-    //
-    //     return mStreamOpen;
-    // }
     //--------------------------------------------------------------------------
     void DrawMainWindow() {
         // ImGui::SetNextWindowSizeConstraints(ImVec2(800.0f, 600.f), ImVec2(FLT_MAX, FLT_MAX));
@@ -232,15 +97,16 @@ public:
             if (ImGui::InputText("URL", urlBuff, sizeof(urlBuff))) {
                 mUrl = urlBuff;
             }
-            if ( mStreamOpen ) {
+            if ( mHttpsStream.isRunning() ) {
                 if (ImGui::Button("close")) {
-                    closeStream();
+                    mHttpsStream.stop();
                 }
             } else {
                 if (ImGui::Button("open URL")) {
-                    openURL();
+                    mHttpsStream.Execute(mUrl);
                 }
             }
+
 
         }
         ImGui::End();
@@ -280,8 +146,6 @@ void SDLCALL ConsoleLogFunction(void *userdata, int category, SDL_LogPriority pr
     // bad if we are gone !!
     gui->mConsole.AddLog("%s", message);
 }
-
-
 // -----------------------------------------------------------------------------
 // Main
 // -----------------------------------------------------------------------------
