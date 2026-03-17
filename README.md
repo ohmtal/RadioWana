@@ -53,6 +53,14 @@ It still runs fine but:
             - OhmFlux ( for SDL3, ImGui and more )
             - httplib 
             - miniaudio
+    - [X] Setup Project again for faster prototyping 
+        - CMakeLists using SDL3 from system
+        - libs
+            - BaseFlux
+            - ImGui 
+            - Console and errorlog from OhmFlux
+            - httplib
+            - miniaudio
     - RadioWanaProto
         - [ ] fetch stream data
             - still fighting with httplib - not sure it's my friend ;) It works with simple urls but seams to have problems with redirects. 

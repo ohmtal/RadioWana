@@ -6,19 +6,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(SDL3 REQUIRED)
 
+find_package(CURL REQUIRED)
+
 # HTTPS
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
     set(HTTPLIB_IS_USING_OPENSSL TRUE)
 endif()
 
-set(IMGGUI_DIR "${CMAKE_CURRENT_LIST_DIR}/lib/imgui")
+set(IMGGUI_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/imgui")
 
 # ------------- Prototype
 set( APP_SOURCES
 
-    eval/main.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/lib/ohmtal/errorlog.cpp
+    src/main.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/errorlog.cpp
 
     #  --- imggui ---
     ${IMGGUI_DIR}/imgui.cpp
@@ -36,14 +38,15 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(RadioWanaProto PRIVATE
     SDL3::SDL3
     pthread
+    CURL::libcurl
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
      "${IMGGUI_DIR}"
      "${IMGGUI_DIR}/backends"
-     "${CMAKE_CURRENT_LIST_DIR}/lib/ohmtal"
-     "${CMAKE_CURRENT_LIST_DIR}/lib/miniaudio"
-     "${CMAKE_CURRENT_LIST_DIR}/lib/httplib"
+     "${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal"
+     "${CMAKE_CURRENT_LIST_DIR}/../lib/miniaudio"
+     "${CMAKE_CURRENT_LIST_DIR}/../lib/httplib"
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -56,7 +59,12 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_DEFINE_MATH_OPERATORS)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-)
+if (UNIX)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_NAME "${PROJECT_NAME}.x86_64"
+
+    )
+endif()
+
 
