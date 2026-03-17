@@ -1,5 +1,8 @@
 # RadioWana II
 
+## Status: Evaluatuion how to implement it ... 
+
+
 I plane a remake of RadioWana a Internet Radio Recorder.
 
 Goal is written in C++ Open Source und Cross Platform. 
@@ -43,13 +46,19 @@ It still runs fine but:
 # Milestones
 
 - [ ] Prototype enter URL (https://streams.radiobob.de/powermetal/mp3-192/streams.radiobob.de/) fetch stream data, decode, playback 
-    - [ ] Setup Project
+    - [X] Setup Project
         - CMakeLists.txt
         - src
         - libs 
             - OhmFlux ( for SDL3, ImGui and more )
             - httplib 
             - miniaudio
+    - RadioWanaProto
+        - [ ] fetch stream data
+            - still fighting with httplib - not sure it's my friend ;) It works with simple urls but seams to have problems with redirects. 
+            
+        - [ ] decode 
+        - [ ] playback
             
 - [ ] Handle and Display MetaData ( HTTP Header: Icy-MetaData: 1 )
 - [ ] Recoding 

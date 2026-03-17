@@ -20,6 +20,13 @@ FetchContent_Declare(
 # This command downloads the code and automatically calls add_subdirectory
 FetchContent_MakeAvailable(ohmFlux)
 
+# HTTPS
+find_package(OpenSSL REQUIRED)
+if(OPENSSL_FOUND)
+    set(HTTPLIB_IS_USING_OPENSSL TRUE)
+endif()
+
+
 # ------------- Prototype
 
 configure_project_target(RadioWanaProto  "${CMAKE_CURRENT_SOURCE_DIR}/" "${CMAKE_CURRENT_SOURCE_DIR}/assets@assets" "eval/main.cpp")
@@ -28,6 +35,14 @@ target_include_directories(RadioWanaProto PRIVATE
      "${CMAKE_CURRENT_LIST_DIR}/lib/miniaudio"
      "${CMAKE_CURRENT_LIST_DIR}/lib/httplib"
 )
+
+target_link_libraries(RadioWanaProto PUBLIC
+        $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:OpenSSL::SSL>
+        $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:OpenSSL::Crypto>)
+
+target_compile_definitions(RadioWanaProto PUBLIC
+        $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:CPPHTTPLIB_OPENSSL_SUPPORT>
+        )
 
 
 # ------------- RadioWana

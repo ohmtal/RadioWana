@@ -3,8 +3,8 @@
 *.kdev4
 
 # build
-./build
-./_build
+build/
+_build/
 
 # ImGui Ini
 *.ini
@@ -16,3 +16,4 @@
 
 # Misc
 removeIcon.sh
+*.log
