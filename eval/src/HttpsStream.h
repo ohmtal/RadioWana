@@ -28,7 +28,10 @@ namespace RadioWana { //FIXME better name ?
 
     public:
         // HttpStream() { initCurl(); }
-        // ~HttpStream() { shutdownCurl(); }
+        ~HttpStream() {
+            stop();
+            if (mThread.joinable()) mThread.join();
+        }
 
         bool isRunning() {return mRunning.load();}
 
@@ -87,6 +90,7 @@ namespace RadioWana { //FIXME better name ?
                 if(curl) {
                     curl_easy_setopt(curl, CURLOPT_URL, mUrl.c_str());
                     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
                     curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
                     curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, ProgressCallback);
                     curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &mStopRequested);
@@ -107,6 +111,7 @@ namespace RadioWana { //FIXME better name ?
                     }
                     curl_easy_cleanup(curl);
                 }
+                stop();
                 mRunning.store(false);
             });
         }
