@@ -20,8 +20,12 @@ set(IMGGUI_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/imgui")
 set( APP_SOURCES
 
     src/main.cpp
+    src/AudioHandler.cpp
+
     ${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/errorlog.cpp
 
+    # --- miniaudio ---
+    # "${CMAKE_CURRENT_LIST_DIR}/../lib/miniaudio/miniaudio.c"
     #  --- imggui ---
     ${IMGGUI_DIR}/imgui.cpp
     ${IMGGUI_DIR}/imgui_draw.cpp

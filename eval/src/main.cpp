@@ -3,8 +3,6 @@
 // SPDX-License-Identifier: MIT
 //-----------------------------------------------------------------------------
 // RadioWanaEval
-//         {"Icy-MetaData", "1"},
-//         {"User-Agent", "RadioWana/2.0"}
 //-----------------------------------------------------------------------------
 
 #include <SDL3/SDL_main.h>
@@ -15,11 +13,10 @@
 #include <errorlog.h>
 
 #include <imgui.h>
-#include <miniaudio.h>
 
+#include "CurlGlue.h"
 #include "HttpsStream.h"
-
-
+#include "AudioHandler.h"
 
 
 // -----------------------------------------------------------------------------
@@ -32,17 +29,24 @@ class RadioWanaEval
 
 
 private:
-     std::string mUrl = "https://streams.radiobob.de/powermetal/mp3-192/streams.radiobob.de/";
-     // std::string mUrl = "https://stream.rockantenne.de/rockantenne/stream/mp3";
+    // std::string mUrl = "https://streams.radiobob.de/powermetal/mp3-192/streams.radiobob.de/";
+    std::string mUrl = "https://stream.rockantenne.de/rockantenne/stream/mp3";
     // std::string mUrl = "http://yourip.chatwana.net/";
 
 
      void OnConsoleCommand(ImConsole* console, const char* cmdline) {}
 
+
+     void OnSongUpdate( std::string title ) {
+            Log("FIXME SONG UPDATE RECORING: %s", title.c_str());
+     }
+
+
      BaseFlux::Main mBaseFlux;
 public:
     ImConsole mConsole;
     RadioWana::HttpStream mHttpsStream;
+    RadioWana::AudioHandler mAudioHandler;
     //--------------------------------------------------------------------------
     bool Initialize()   {
 
@@ -69,6 +73,18 @@ public:
         mBaseFlux.OnShutDown = [&]() { OnShutDown();};
 
         InitErrorLog("RadioWanaEval.log", "RadioWanaEval", "1");
+
+
+        mHttpsStream.OnConnected = [&]() {
+            mAudioHandler.init(mHttpsStream.getStreamInfo());
+            mHttpsStream.dumpInfo();
+
+        };
+        mHttpsStream.OnSongUpdate = [&](std::string title) {  OnSongUpdate(title); };
+        mHttpsStream.OnAudioChunk = [&](const void* buffer , size_t size) {  mAudioHandler.OnAudioChunk(buffer, size); };
+        mHttpsStream.onDisConnected = [&]() {  mAudioHandler.onDisConnected(); };
+
+
         return true;
 
     }
@@ -83,7 +99,7 @@ public:
     void OnEvent(const SDL_Event event) {}
     void OnShutDown() {
         SDL_SetLogOutputFunction(nullptr, nullptr); // log must be unlinked first!!
-        mHttpsStream.shutdownCurl();
+        RadioWana::shutdownCurl();
     }
     //--------------------------------------------------------------------------
     // ..... Stream .....

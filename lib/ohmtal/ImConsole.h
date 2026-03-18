@@ -82,7 +82,7 @@ public:
         mDirty = true;
     }
     //--------------------------------------------------------------------------
-    void    AddLog(const char* fmt, ...) IM_FMTARGS(2)
+    void AddLog(const char* fmt, ...) IM_FMTARGS(2)
     {
         char buf[1024];
         va_list args;
@@ -285,6 +285,7 @@ public:
                         ImGui::PopStyleColor();
                 }
             }
+            clipper.End();
 
             ImGui::PopStyleVar();
 
@@ -295,6 +296,8 @@ public:
 
             if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
                 ImGui::SetScrollHereY(1.0f);
+
+
             ScrollToBottom = false;
 
         } //ScrollingRegion
