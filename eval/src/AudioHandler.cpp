@@ -24,7 +24,6 @@ namespace RadioWana {
         ma_uint64 framesRead;
         ma_result result = ma_decoder_read_pcm_frames(self->mDecoder, pcmBuffer.data(), framesToRead, &framesRead);
 
-        // 4. Daten an SDL übergeben
         if (framesRead > 0) {
             SDL_PutAudioStreamData(stream, pcmBuffer.data(), (int)(framesRead * bytesPerFrame));
         }

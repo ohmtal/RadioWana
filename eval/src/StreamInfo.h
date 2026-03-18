@@ -89,10 +89,9 @@ namespace RadioWana {
                 auto getParam = [&](const std::string& key1, const std::string& key2) -> int {
                     if (params.count(key1)) return std::stoi(params[key1]);
                     if (params.count(key2)) return std::stoi(params[key2]);
-                    return 0; // Fallback, falls nichts gefunden wurde
+                    return 0; // Fallback
                 };
 
-                // Jetzt deckst du beide Welten ab: "samplerate" und "ice-samplerate"
                 int newSamplerate = getParam("samplerate", "ice-samplerate");
                 int newBitrate    = getParam("bitrate",    "ice-bitrate");
                 int newChannels   = getParam("channels",   "ice-channels");
