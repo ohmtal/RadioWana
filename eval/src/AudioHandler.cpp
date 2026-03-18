@@ -55,6 +55,8 @@ namespace RadioWana {
             return false;
 
 
+        mTotalAudioBytesPlayed = 0;
+
         if (mDecoder == nullptr) {
             dLog("mDecoder was nullptr?! ");
             mDecoder = new ma_decoder();
@@ -136,12 +138,13 @@ namespace RadioWana {
           std::lock_guard<std::recursive_mutex> lock(mBufferMutex);
         mRawBuffer.insert(mRawBuffer.end(), (uint8_t*)buffer, (uint8_t*)buffer + size);
 
-        if (mStreamInfo && !mDecoderInitialized && mRawBuffer.size() >= 16384) {
+        if (mStreamInfo && !mDecoderInitialized && mRawBuffer.size() >= mPreBufferSize) {
             mDecoderInitialized = true;
             this->init(mStreamInfo);
         }
     }
     // -----------------------------------------------------------------------------
+
 
     ma_result AudioHandler::OnReadFromRawBuffer(ma_decoder* pDecoder, void* pBufferOut, size_t bytesToRead, size_t* pBytesRead)
     {
@@ -158,6 +161,16 @@ namespace RadioWana {
         if (actualRead > 0) {
             memcpy(pBufferOut, self->mRawBuffer.data(), actualRead);
             self->mRawBuffer.erase(self->mRawBuffer.begin(), self->mRawBuffer.begin() + actualRead);
+
+            // Title Trigger / mTotalAudioBytesPlayed
+            self->mTotalAudioBytesPlayed += actualRead;
+            if ( !self->mPendingStreamTitles.empty() &&
+                self->mTotalAudioBytesPlayed >= self->mPendingStreamTitles.front().byteOffset
+            ) {
+                self->mCurrentTitle = self->mPendingStreamTitles.front().streamTitle;
+                self->mPendingStreamTitles.pop_front();
+                if ( self->OnTitleTrigger ) self->OnTitleTrigger();
+            }
         }
 
         if (pBytesRead) {
@@ -186,6 +199,14 @@ namespace RadioWana {
             mInitialized = false;
         }
     }
+    // -----------------------------------------------------------------------------
+    void AudioHandler::OnStreamTitleUpdate(const std::string streamTitle, const size_t streamPosition){
+        if (mCurrentTitle == "")  mCurrentTitle=streamTitle;
+        MetaEvent newEvent;
+        newEvent.streamTitle = streamTitle;
+        newEvent.byteOffset = streamPosition;
+        mPendingStreamTitles.push_back(newEvent);
+    }
 
-};
+}; //namespace
 

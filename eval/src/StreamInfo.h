@@ -12,15 +12,23 @@
 
 namespace RadioWana {
 
+    struct MetaEvent {
+        size_t byteOffset;
+        std::string streamTitle;
+    };
+
+
     struct StreamInfo {
+        std::string streamUrl = "";
         std::string content_type = ""; // Content-Type: audio/mpeg
         std::string audio_info = "";   // ice-audio-info: samplerate=44100;bitrate=192;channels=2
         uint16_t samplerate = 44100;
         uint16_t bitrate    = 192;
         uint8_t  channels   = 2;
-        std::string icy_br = "";       // icy-br: 192
-        std::string icy_desc = "";     // icy-description: RADIO BOB - Power Metal
-        std::string icy_name = "";     //  icy-name: RADIO BOB - Power Metal
+        std::string bitRate = "";       // icy-br: 192
+        std::string description = "";     // icy-description: RADIO BOB - Power Metal
+        std::string name = "";     //  icy-name: RADIO BOB - Power Metal
+        std::string url = "";     //  icy-url: http://www.rockantenne.de
 
 
 
@@ -43,25 +51,32 @@ namespace RadioWana {
 
             else if (header.find("icy-br") == 0) {
                 pos = header.find(": ");
-                icy_br = header.substr(pos + 2).c_str();
+                bitRate = header.substr(pos + 2).c_str();
             }
 
             else if (header.find("icy-description:") == 0) {
                 pos = header.find(": ");
-                icy_desc = header.substr(pos + 2).c_str();
+                description = header.substr(pos + 2).c_str();
 
             } else if (header.find("icy-name:") == 0) {
                 pos = header.find(": ");
-                icy_name = header.substr(pos + 2).c_str();
+                name = header.substr(pos + 2).c_str();
+            } else if (header.find("icy-url:") == 0) {
+                pos = header.find(": ");
+                url = header.substr(pos + 2).c_str();
             }
+
+
         }
+
 
         void dump() {
             Log("Content Type: %s", content_type.c_str());
             Log("Audio: %d Hz, %d kbps, %d Channels", samplerate, bitrate, channels);
-            Log("Bitrate: %s", icy_br.c_str());
-            Log("Description: %s", icy_desc.c_str());
-            Log("Name: %s", icy_name.c_str());
+            Log("Bitrate: %s", bitRate.c_str());
+            Log("Description: %s", description.c_str());
+            Log("Name: %s", name.c_str());
+            Log("Url: %s", url.c_str());
         }
 
     private:
@@ -106,8 +121,5 @@ namespace RadioWana {
                 Log("[error] ParseIcyAudioInfo failed: %s (String was: '%s')", e.what(), info.c_str());
             }
         }
-
-
     };
-
 };

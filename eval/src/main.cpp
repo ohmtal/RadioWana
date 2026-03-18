@@ -15,8 +15,9 @@
 #include <imgui.h>
 
 #include "CurlGlue.h"
-#include "HttpsStream.h"
+#include "StreamHandler.h"
 #include "AudioHandler.h"
+#include "StreamInfo.h"
 
 
 // -----------------------------------------------------------------------------
@@ -35,17 +36,11 @@ private:
 
 
      void OnConsoleCommand(ImConsole* console, const char* cmdline) {}
-
-
-     void OnSongUpdate( std::string title ) {
-            Log("FIXME SONG UPDATE RECORING: %s", title.c_str());
-     }
-
-
      BaseFlux::Main mBaseFlux;
+
 public:
     ImConsole mConsole;
-    RadioWana::HttpStream mHttpsStream;
+    RadioWana::StreamHandler mStreamHandler;
     RadioWana::AudioHandler mAudioHandler;
     //--------------------------------------------------------------------------
     bool Initialize()   {
@@ -75,15 +70,19 @@ public:
         InitErrorLog("RadioWanaEval.log", "RadioWanaEval", "1");
 
 
-        mHttpsStream.OnConnected = [&]() {
-            mAudioHandler.init(mHttpsStream.getStreamInfo());
-            mHttpsStream.dumpInfo();
+        mStreamHandler.OnConnected = [&]() {
+            mAudioHandler.init(mStreamHandler.getStreamInfo());
+            mStreamHandler.dumpInfo();
 
         };
-        mHttpsStream.OnSongUpdate = [&](std::string title) {  OnSongUpdate(title); };
-        mHttpsStream.OnAudioChunk = [&](const void* buffer , size_t size) {  mAudioHandler.OnAudioChunk(buffer, size); };
-        mHttpsStream.onDisConnected = [&]() {  mAudioHandler.onDisConnected(); };
+        mStreamHandler.OnStreamTitleUpdate = [&](std::string title, size_t streamPosition)
+            {  mAudioHandler.OnStreamTitleUpdate(title, streamPosition); };
+        mStreamHandler.OnAudioChunk = [&](const void* buffer , size_t size) {  mAudioHandler.OnAudioChunk(buffer, size); };
+        mStreamHandler.onDisConnected = [&]() {  mAudioHandler.onDisConnected(); };
 
+        mAudioHandler.OnTitleTrigger = [&]() {
+            Log("[error] Streamtitle TRIGGER!!! %s", mAudioHandler.getCurrentTitle().c_str());
+        };
 
         return true;
 
@@ -113,13 +112,27 @@ public:
             if (ImGui::InputText("URL", urlBuff, sizeof(urlBuff))) {
                 mUrl = urlBuff;
             }
-            if ( mHttpsStream.isRunning() ) {
+            if ( mStreamHandler.isRunning() ) {
                 if (ImGui::Button("close")) {
-                    mHttpsStream.stop();
+                    mStreamHandler.stop();
                 }
+                RadioWana::StreamInfo* info = mStreamHandler.getStreamInfo();
+                if (info)
+                {
+                    ImGui::SeparatorText(info->streamUrl.c_str());
+                    ImGui::SeparatorText(info->name.c_str());
+                    ImGui::TextColored(ImVec4(0.3f, 0.3f,0.7f,1.f), "%s", mAudioHandler.getCurrentTitle().c_str());
+                    ImGui::TextDisabled("Next: %s", mAudioHandler.getNextTitle().c_str());
+                    ImGui::Separator();
+                    ImGui::Text("Description: %s", info->description.c_str());
+                    ImGui::Text("Audio: %d Hz, %d kbps, %d Channels", info->samplerate, info->bitrate, info->channels);
+                    ImGui::Text("Url: %s", info->url.c_str());
+                }
+
+
             } else {
                 if (ImGui::Button("open URL")) {
-                    mHttpsStream.Execute(mUrl);
+                    mStreamHandler.Execute(mUrl);
                 }
             }
 

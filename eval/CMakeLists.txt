@@ -21,6 +21,7 @@ set( APP_SOURCES
 
     src/main.cpp
     src/AudioHandler.cpp
+    src/StreamHandler.cpp
 
     ${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/errorlog.cpp
 

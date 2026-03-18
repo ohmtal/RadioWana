@@ -3,7 +3,7 @@
 ## Status: prototyping
 
 
-I plane a remake of RadioWana a Internet Radio Recorder.
+I plan a remake of RadioWana a Internet Radio Recorder.
 
 Goal is written in C++ Open Source und Cross Platform. 
 Using: 

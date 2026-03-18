@@ -8,7 +8,7 @@
 namespace RadioWana {
 
     static bool gCurlInitialized = false;
-    void initCurl() {
+    inline void initCurl() {
         if ( gCurlInitialized ) return;
         curl_global_init(CURL_GLOBAL_DEFAULT);
         gCurlInitialized = true;
