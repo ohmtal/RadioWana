@@ -140,8 +140,6 @@ namespace RadioWana {
             auto* self = static_cast<HttpStream*>(userdata);
             size_t totalSize = size * nmemb;
 
-            // dLog("[info] https got chunk. size:%d. nitems:%d  total: %d",(uint32_t)size,(uint32_t)nmemb, (uint32_t)totalSize);
-
             const uint8_t* data = static_cast<const uint8_t*>(buffer);
             size_t handled = 0;
 
@@ -230,9 +228,6 @@ namespace RadioWana {
                 CURLcode res;
                 mCurlHandle = curl_easy_init();
                 if(mCurlHandle) {
-
-                    //         {"Icy-MetaData", "1"},
-                    //         {"User-Agent", "RadioWana/2.0"}
 
                     curl_easy_setopt(mCurlHandle, CURLOPT_URL, mUrl.c_str());
                     curl_easy_setopt(mCurlHandle, CURLOPT_USERAGENT, "RadioWana/2.0");

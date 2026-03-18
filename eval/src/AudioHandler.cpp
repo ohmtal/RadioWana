@@ -141,18 +141,7 @@ namespace RadioWana {
             this->init(mStreamInfo);
         }
     }
-
-    // void AudioHandler::OnAudioChunk(const void* buffer, size_t size) {
-    //     std::lock_guard<std::mutex> lock(mBufferMutex);
-    //     const uint8_t* pData = static_cast<const uint8_t*>(buffer);
-    //     mRawBuffer.insert(mRawBuffer.end(), pData, pData + size);
-    //
-    //     // if (!mDecoderInitialized && mRawBuffer.size() > 8192) {
-    //     //     InitMiniaudio();
-    //     // }
-    // }
     // -----------------------------------------------------------------------------
-    // Muss exakt 4 Argumente haben, wenn pUserData separat übergeben wird:
 
     ma_result AudioHandler::OnReadFromRawBuffer(ma_decoder* pDecoder, void* pBufferOut, size_t bytesToRead, size_t* pBytesRead)
     {
