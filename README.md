@@ -65,6 +65,7 @@ It still runs fine but:
         - [X] fetch stream data and meta data :D 
         - [X] decode 
         - [X] playback
+        - [ ] add header: icy-url: 
         
 
     - [ ] Recoding 
