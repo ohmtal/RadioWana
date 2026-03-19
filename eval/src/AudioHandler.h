@@ -12,6 +12,9 @@
 #include <mutex>
 #include <functional>
 #include <deque>
+#include "DSP.h"
+#include "DSP_EffectsManager.h"
+#include "dsp/MonoProcessors/Volume.h"
 
 namespace RadioWana {
 
@@ -34,6 +37,29 @@ namespace RadioWana {
         std::string mCurrentTitle = "";
         std::deque<MetaEvent> mPendingStreamTitles;
 
+
+        DSP::MonoProcessors::Volume mVolProcessor;
+        std::atomic<float>mVolume = 1.f;
+
+
+        std::unique_ptr<DSP::EffectsManager> mEffectsManager = nullptr;
+        void populateRack(DSP::EffectsRack* lRack) {
+            std::vector<DSP::EffectType> types = {
+                DSP::EffectType::Equalizer9Band,
+                // DSP::EffectType::Limiter,
+                DSP::EffectType::SpectrumAnalyzer,
+                DSP::EffectType::VisualAnalyzer,
+            };
+            for (auto type : types) {
+                auto fx = DSP::EffectFactory::Create(type);
+                if (fx) {
+                    fx->setEnabled(true);
+                    lRack->getEffects().push_back(std::move(fx));
+                }
+            }
+        }
+
+
     public:
 
 
@@ -41,7 +67,21 @@ namespace RadioWana {
             mDecoder = new ma_decoder();
             memset(mDecoder, 0, sizeof(ma_decoder));
             mStreamInfo = nullptr;
+
+            mEffectsManager = std::make_unique<DSP::EffectsManager>(true);
+            populateRack(mEffectsManager->getActiveRack());
         }
+
+        void RenderRack(int mode = 0) {
+            if (mEffectsManager) {
+                    mEffectsManager->renderUI(mode);
+            }
+        }
+        DSP::EffectsManager* getManager() const { return mEffectsManager.get();}
+
+        float getVolume() {return mVolume.load(); }
+        void setVolume(float value) {return mVolume.store(value); }
+
 
         std::function<void()> OnTitleTrigger = nullptr;
         std::string getCurrentTitle() const { return mCurrentTitle;}
@@ -54,6 +94,14 @@ namespace RadioWana {
         }
 
         bool init(StreamInfo* info);
+        void shutDown() {
+            if (mStream) {
+                SDL_DestroyAudioStream(mStream);
+                mStream = nullptr;
+            }
+            onDisConnected();
+
+        }
 
         void OnStreamTitleUpdate(const std::string streamTitle, const size_t streamPosition);
         void OnAudioChunk(const void* buffer, const size_t size);

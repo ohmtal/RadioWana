@@ -1,12 +1,13 @@
 #include <SDL3/SDL.h>
 #include "AudioHandler.h"
-#include <errorlog.h>
+#include "utils/errorlog.h"
 #include <mutex>
 
 #define MA_NO_DEVICE_IO
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
 
+#include "dsp/MonoProcessors/Volume.h"
 
 namespace RadioWana {
     // -----------------------------------------------------------------------------
@@ -14,26 +15,68 @@ namespace RadioWana {
     void SDLCALL AudioHandler::audio_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount) {
         auto* self = static_cast<AudioHandler*>(userdata);
 
-        int bytesPerFrame = sizeof(float) * self->mStreamInfo->channels;
-        ma_uint32 framesToRead = additional_amount / bytesPerFrame;
+        int channels = self->mStreamInfo->channels;
+        ma_uint32 framesToRead = additional_amount / (sizeof(float) * channels);
 
-        //  PCM-Data
-        std::vector<float> pcmBuffer(framesToRead * self->mStreamInfo->channels);
+        // Buffer
+        std::vector<float> pcmBuffer(framesToRead * channels);
 
-        // miniaudio
         ma_uint64 framesRead;
         ma_result result = ma_decoder_read_pcm_frames(self->mDecoder, pcmBuffer.data(), framesToRead, &framesRead);
 
         if (framesRead > 0) {
-            SDL_PutAudioStreamData(stream, pcmBuffer.data(), (int)(framesRead * bytesPerFrame));
+            size_t totalSamplesRead = framesRead * channels;
+
+
+            float vol = self->mVolume.load();
+            for (uint32_t i = 0; i < totalSamplesRead; i++)
+                pcmBuffer.data()[i] = self->mVolProcessor.process(pcmBuffer.data()[i], vol, false);
+
+            if (self->mEffectsManager) {
+                self->mEffectsManager->process(pcmBuffer.data(), (int)totalSamplesRead, channels);
+            }
+
+
+            int bytesToWrite = (int)(totalSamplesRead * sizeof(float));
+            SDL_PutAudioStreamData(stream, pcmBuffer.data(), bytesToWrite);
         }
 
         if (framesRead < framesToRead) {
-            int silenceBytes = (framesToRead - (int)framesRead) * bytesPerFrame;
-            std::vector<uint8_t> silence(silenceBytes, 0);
+            int missingFrames = framesToRead - (int)framesRead;
+            int silenceBytes = missingFrames * channels * sizeof(float);
+            std::vector<float> silence(missingFrames * channels, 0.0f);
             SDL_PutAudioStreamData(stream, silence.data(), silenceBytes);
         }
     }
+
+
+    // void SDLCALL AudioHandler::audio_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount) {
+    //     auto* self = static_cast<AudioHandler*>(userdata);
+    //
+    //     int bytesPerFrame = sizeof(float) * self->mStreamInfo->channels;
+    //     ma_uint32 framesToRead = additional_amount / bytesPerFrame;
+    //
+    //     //  PCM-Data
+    //     std::vector<float> pcmBuffer(framesToRead * self->mStreamInfo->channels);
+    //
+    //     // miniaudio
+    //     ma_uint64 framesRead;
+    //     ma_result result = ma_decoder_read_pcm_frames(self->mDecoder, pcmBuffer.data(), framesToRead, &framesRead);
+    //
+    //     if (framesRead > 0) {
+    //         int numSamples =  (int)(framesRead * bytesPerFrame);
+    //         self->mEffectsManager->process(pcmBuffer.data(), numSamples, self->mStreamInfo->channels);
+    //
+    //         SDL_PutAudioStreamData(stream, pcmBuffer.data(), numSamples);
+    //     }
+    //
+    //     if (framesRead < framesToRead) {
+    //         int silenceBytes = (framesToRead - (int)framesRead) * bytesPerFrame;
+    //         std::vector<uint8_t> silence(silenceBytes, 0);
+    //
+    //         SDL_PutAudioStreamData(stream, silence.data(), silenceBytes);
+    //     }
+    // }
 
     // -----------------------------------------------------------------------------
     bool AudioHandler::init(StreamInfo* info) {
@@ -56,6 +99,7 @@ namespace RadioWana {
 
 
         mTotalAudioBytesPlayed = 0;
+        mEffectsManager->setSampleRate(info->samplerate);
 
         if (mDecoder == nullptr) {
             dLog("mDecoder was nullptr?! ");
@@ -111,7 +155,7 @@ namespace RadioWana {
 
             SDL_SetAudioStreamGetCallback(mStream, AudioHandler::audio_callback, this);
 
-            #ifdef FLUX_ENGINE
+            #if defined(FLUX_ENGINE) && !defined(FLUX_ENGINE_FAKE)
             AudioManager.bindStream(mStream);
             #else
             SDL_AudioDeviceID dev = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
@@ -186,6 +230,7 @@ namespace RadioWana {
     }
     // -----------------------------------------------------------------------------
     void AudioHandler::onDisConnected(){
+        //FIXME on exit: Fatal glibc error: pthread_mutex_lock.c:426 (__pthread_mutex_lock_full): assertion failed: e != ESRCH || !robust
         std::lock_guard<std::recursive_mutex> lock(mBufferMutex);
         mRawBuffer.clear();
         mDecoderInitialized = false;

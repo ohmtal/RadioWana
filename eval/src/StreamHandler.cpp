@@ -5,7 +5,7 @@
 #include "StreamHandler.h"
 
 #include <curl/curl.h>
-#include "errorlog.h"
+#include "utils/errorlog.h"
 #include "CurlGlue.h"
 
 #include "StreamInfo.h"

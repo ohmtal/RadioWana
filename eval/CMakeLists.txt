@@ -23,7 +23,7 @@ set( APP_SOURCES
     src/AudioHandler.cpp
     src/StreamHandler.cpp
 
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/errorlog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/utils/errorlog.cpp
 
     # --- miniaudio ---
     # "${CMAKE_CURRENT_LIST_DIR}/../lib/miniaudio/miniaudio.c"
@@ -50,6 +50,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
      "${IMGGUI_DIR}"
      "${IMGGUI_DIR}/backends"
      "${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal"
+     "${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/dsp"
      "${CMAKE_CURRENT_LIST_DIR}/../lib/miniaudio"
      "${CMAKE_CURRENT_LIST_DIR}/../lib/httplib"
 )
@@ -63,6 +64,9 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
         )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_DEFINE_MATH_OPERATORS)
+target_compile_definitions(${PROJECT_NAME} PUBLIC FLUX_ENGINE) # fake entry for DSP
+target_compile_definitions(${PROJECT_NAME} PUBLIC FLUX_ENGINE_FAKE)
+
 
 if (UNIX)
     set_target_properties(${PROJECT_NAME} PROPERTIES

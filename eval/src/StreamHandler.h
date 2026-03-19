@@ -4,7 +4,7 @@
 //-----------------------------------------------------------------------------
 #pragma once
 #include <curl/curl.h>
-#include "errorlog.h"
+#include "utils/errorlog.h"
 #include "StreamInfo.h"
 
 #include <iostream>

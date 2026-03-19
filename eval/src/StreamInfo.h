@@ -8,7 +8,7 @@
 #include <string>
 #include <map>
 #include <sstream>
-#include <errorlog.h>
+#include "utils/errorlog.h"
 
 namespace RadioWana {
 
