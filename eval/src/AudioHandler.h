@@ -99,7 +99,7 @@ namespace RadioWana {
                 SDL_DestroyAudioStream(mStream);
                 mStream = nullptr;
             }
-            onDisConnected();
+            mDecoderInitialized = false;
 
         }
 

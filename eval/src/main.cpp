@@ -99,6 +99,9 @@ public:
     void OnShutDown() {
         SDL_SetLogOutputFunction(nullptr, nullptr); // log must be unlinked first!!
         mAudioHandler.shutDown();
+        mStreamHandler.stop();
+        // SDL_Delay(1000);
+
         RadioWana::shutdownCurl();
     }
     //--------------------------------------------------------------------------

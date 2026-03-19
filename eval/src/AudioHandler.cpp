@@ -230,6 +230,7 @@ namespace RadioWana {
     }
     // -----------------------------------------------------------------------------
     void AudioHandler::onDisConnected(){
+        if (!mDecoderInitialized) return;
         //FIXME on exit: Fatal glibc error: pthread_mutex_lock.c:426 (__pthread_mutex_lock_full): assertion failed: e != ESRCH || !robust
         std::lock_guard<std::recursive_mutex> lock(mBufferMutex);
         mRawBuffer.clear();
