@@ -67,21 +67,20 @@ It still runs fine but:
         - [X] playback
         - [X] sync title trigger with audio stream 
         - [X] fix memory raise over time =>  rawbuffer, decoder, curl ... ?  => sanitize=address 
-        
 
-    - [ ] Recoding
-        - [ ] test: simply write stream to file on title trigger 
-    
-- [ ] Final Version 
-    - [ ] switch to OhmFlux agian with it's build system 
-    - [ ] Gui enhancements 
-        - [ ] ...fixme write todos ;) ...
-        - [ ] ...
-    - [ ] Test on windows 
-    
-- [ ] Maybe:
+    - [X] Recoding
+        - AudioRecorder.h
+
     - [ ] radio-browser.info. 
         - [ ] SRV lookup _api._tcp.radio-browser.info << cross platform problem ?
         - [ ] results of queries should be cached. 
         - [ ] XML or JSON parsing the request results << nlohman
+    
+- [ ] Final Version 
+    - [ ] switch to OhmFlux agian with it's build system 
+    - [ ] Gui enhancements 
+        - [ ] save settings 
+        - [ ] ...fixme write todos ;) ...
+        - [ ] ...
+    - [ ] Test on windows 
     

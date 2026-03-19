@@ -5,7 +5,7 @@
 #pragma once
 #include <curl/curl.h>
 
-namespace RadioWana {
+namespace FluxNet {
 
     static bool gCurlInitialized = false;
     inline void initCurl() {

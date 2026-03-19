@@ -9,7 +9,7 @@
 
 #include "dsp/MonoProcessors/Volume.h"
 
-namespace RadioWana {
+namespace FluxRadio {
     // -----------------------------------------------------------------------------
 
     void SDLCALL AudioHandler::audio_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount) {
@@ -203,6 +203,10 @@ namespace RadioWana {
         size_t actualRead = std::min(bytesToRead, available);
 
         if (actualRead > 0) {
+            // fire OnAudioStreamData Event can be used for recording
+            if (self->OnAudioStreamData) self->OnAudioStreamData(self->mRawBuffer.data(), actualRead);
+
+            // Copy to pBufferOut and remove from mRawBuffer
             memcpy(pBufferOut, self->mRawBuffer.data(), actualRead);
             self->mRawBuffer.erase(self->mRawBuffer.begin(), self->mRawBuffer.begin() + actualRead);
 
@@ -229,17 +233,16 @@ namespace RadioWana {
         return MA_SUCCESS;
     }
     // -----------------------------------------------------------------------------
-    void AudioHandler::onDisConnected(){
+    void AudioHandler::onDisConnected ( bool doLock ){
         if (!mDecoderInitialized) return;
         //FIXME on exit: Fatal glibc error: pthread_mutex_lock.c:426 (__pthread_mutex_lock_full): assertion failed: e != ESRCH || !robust
-        std::lock_guard<std::recursive_mutex> lock(mBufferMutex);
+        if (doLock) std::lock_guard<std::recursive_mutex> lock(mBufferMutex);
         mRawBuffer.clear();
         mDecoderInitialized = false;
         if (mStream) {
             SDL_PauseAudioStreamDevice(mStream);
         }
         if (mDecoder) {
-
             ma_decoder_uninit(mDecoder);
             memset(mDecoder, 0, sizeof(ma_decoder));
             mInitialized = false;

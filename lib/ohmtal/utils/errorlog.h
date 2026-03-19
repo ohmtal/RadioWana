@@ -3,7 +3,7 @@
 #ifndef _ERRORLOG_H
 #define _ERRORLOG_H
 
-// #include "core/fluxGlobals.h"
+#include "core/fluxGlobals.h"
 
 #ifdef WIN32																// If We're Under MSVC
 #include <windows.h>														// We Need The Windows Header
@@ -26,7 +26,7 @@
 
 bool InitErrorLog(const char* log_file, const char* app_name, const char* app_version) ;	// Initializes The Error Log
 void CloseErrorLog(void);									// Closes The Error Log
-int  Log(const char *, ...); // PRINTF_CHECK(1, 2);										// Uses The Error Log :)
+int  Log(const char *, ...) PRINTF_CHECK(1, 2);										// Uses The Error Log :)
 int _LogFMT(std::string_view fmt, std::format_args args);
 
 template<typename... Args>

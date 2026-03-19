@@ -16,7 +16,7 @@
 #include "DSP_EffectsManager.h"
 #include "dsp/MonoProcessors/Volume.h"
 
-namespace RadioWana {
+namespace FluxRadio {
 
 
     class AudioHandler {
@@ -83,6 +83,7 @@ namespace RadioWana {
         void setVolume(float value) {return mVolume.store(value); }
 
 
+        std::function<void(const uint8_t*, size_t)> OnAudioStreamData = nullptr;
         std::function<void()> OnTitleTrigger = nullptr;
         std::string getCurrentTitle() const { return mCurrentTitle;}
         std::deque<MetaEvent> getPendingStreamTitles()  const { return mPendingStreamTitles; }
@@ -95,17 +96,17 @@ namespace RadioWana {
 
         bool init(StreamInfo* info);
         void shutDown() {
-            if (mStream) {
-                SDL_DestroyAudioStream(mStream);
-                mStream = nullptr;
-            }
-            mDecoderInitialized = false;
-
+            onDisConnected(false);
+            // if (mStream) {
+            //     SDL_DestroyAudioStream(mStream);
+            //     mStream = nullptr;
+            // }
+            // mDecoderInitialized = false;
         }
 
         void OnStreamTitleUpdate(const std::string streamTitle, const size_t streamPosition);
         void OnAudioChunk(const void* buffer, const size_t size);
-        void onDisConnected();
+        void onDisConnected(bool doLock = true);
 
     private:
         static void SDLCALL audio_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount);

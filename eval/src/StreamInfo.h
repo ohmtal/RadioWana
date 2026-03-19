@@ -10,7 +10,7 @@
 #include <sstream>
 #include "utils/errorlog.h"
 
-namespace RadioWana {
+namespace FluxRadio {
 
     struct MetaEvent {
         size_t byteOffset;

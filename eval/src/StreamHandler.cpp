@@ -17,7 +17,7 @@
 #include <mutex>
 #include <functional>
 #include <map>
-namespace RadioWana {
+namespace FluxRadio {
 
     //--------------------------------------------------------------------------
     size_t StreamHandler::HeaderCallback(char* buffer, size_t size, size_t nitems, void* userdata) {
@@ -172,7 +172,7 @@ namespace RadioWana {
 
 
         mStopRequested.store(false);
-        initCurl();
+        FluxNet::initCurl();
 
         mThread = std::thread([this]() {
             mRunning.store(true);

@@ -16,7 +16,7 @@
 #include <map>
 
 
-namespace RadioWana {
+namespace FluxRadio {
 
 
     class StreamHandler {
