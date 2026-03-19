@@ -58,22 +58,29 @@ It still runs fine but:
         - libs
             - BaseFlux
             - ImGui 
-            - Console and errorlog from OhmFlux
+            - Ohmtal: some parts of OhmFlux
             - httplib
             - miniaudio
     - RadioWanaProto
         - [X] fetch stream data and meta data :D 
         - [X] decode 
         - [X] playback
-        - [ ] add header: icy-url: 
+        - [X] sync title trigger with audio stream 
         
 
-    - [ ] Recoding 
+    - [ ] Recoding
+        - [ ] test: simply write stream to file on title trigger 
     
 - [ ] Final Version 
-    - [ ] switch to OhmFlux with it's build system again 
+    - [ ] switch to OhmFlux agian with it's build system 
     - [ ] Gui enhancements 
         - [ ] ...fixme write todos ;) ...
         - [ ] ...
     - [ ] Test on windows 
+    
+- [ ] Maybe:
+    - [ ] radio-browser.info. 
+        - [ ] SRV lookup _api._tcp.radio-browser.info << cross platform problem ?
+        - [ ] results of queries should be cached. 
+        - [ ] XML or JSON parsing the request results << nlohman
     
