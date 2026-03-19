@@ -587,6 +587,15 @@ static S32 FLUX_EVENT_SCALE_CHANGED = 0;
 namespace fluxStr {
 
     //--------------------------------------------------------------------------
+    inline std::string removePart(std::string s, const std::string& part) {
+        if (part.empty()) return s;
+        size_t pos = 0;
+        while ((pos = s.find(part, pos)) != std::string::npos) {
+            s.erase(pos, part.length());
+        }
+        return s;
+    }
+    //--------------------------------------------------------------------------
     inline std::string toUpper(std::string s) {
         std::ranges::transform(s, s.begin(), [](unsigned char c){ return std::toupper(c); });
         return s;

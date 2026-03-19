@@ -108,6 +108,7 @@ public:
 
         mAudioHandler->OnTitleTrigger = [&]() {
             Log("Streamtitle %s", mAudioHandler->getCurrentTitle().c_str());
+            //FIXME toggle delay ... needed for some stations
             if (mRecording && mAudioRecorder.get()) mAudioRecorder->openFile(mAudioHandler->getCurrentTitle());
         };
 
@@ -215,6 +216,8 @@ public:
                     if (mRecording && !mRecordingStartsOnNewTile && !mAudioHandler->getCurrentTitle().empty()) {
                         mAudioRecorder->openFile(mAudioHandler->getCurrentTitle());
                     }
+                    if (!mRecording)
+                        mAudioRecorder->closeFile();
                 }
                 if (mRecording) {
                     ImFlux::DrawLED("Recording", mAudioRecorder->isFileOpen(), ImFlux::LED_GREEN_ANIMATED_GLOW);
@@ -265,7 +268,7 @@ void SDLCALL ConsoleLogFunction(void *userdata, int category, SDL_LogPriority pr
     }
 
     // bad if we are gone !!
-    gui->mConsole.AddLog("%s", message);
+    gui->mConsole.AddLog("%s", fluxStr::removePart(message,"\r\n").c_str());
 }
 // -----------------------------------------------------------------------------
 // Main

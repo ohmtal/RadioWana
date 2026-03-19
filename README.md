@@ -68,19 +68,32 @@ It still runs fine but:
         - [X] sync title trigger with audio stream 
         - [X] fix memory raise over time =>  rawbuffer, decoder, curl ... ?  => sanitize=address 
 
-    - [X] Recoding
-        - AudioRecorder.h
-
-    - [ ] radio-browser.info. 
-        - [ ] SRV lookup _api._tcp.radio-browser.info << cross platform problem ?
+    - [ ] Recoding
+        - [X] add callback to AudioHandler
+        - [X] add class AudioRecorder
+        - [X] add checks for directory and file system full
+        - [X] open/close/write stream 
+        - [X] add source to main for recording
+        
+    - [ ] radio-browser.info using Curl 
+        - [~] SRV lookup _api._tcp.radio-browser.info << cross platform problem ?
+            - for testing i use de1.api.radio-browser.info
+        - [ ] add a search
         - [ ] results of queries should be cached. 
         - [ ] XML or JSON parsing the request results << nlohman
     
 - [ ] Final Version 
     - [ ] switch to OhmFlux agian with it's build system 
+    - [ ] add delay to switch file name, this should be saved for each station 
+        - rock antenne sends meta data too early for example 3 sec or so 
+        - i can use OhmFlux Scheduler :) 
     - [ ] Gui enhancements 
-        - [ ] save settings 
+        - [ ] design like an old 70th/80th radio recorder 
+        - [ ] keep android GUI in mind (no context menus)
+        - [ ] define and save settings 
         - [ ] ...fixme write todos ;) ...
-        - [ ] ...
+        
     - [ ] Test on windows 
+        - write docu like https://github.com/ohmtal/OhmFlux/blob/main/README_BUILD_WINDOWS.md but add curl 
+        - i may add curl to OhmFlux so simple add this there 
     

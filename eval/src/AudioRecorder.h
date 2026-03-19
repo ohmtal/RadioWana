@@ -2,6 +2,8 @@
 // Copyright (c) 2012 Thomas Hühn (XXTH)
 // SPDX-License-Identifier: MIT
 //-----------------------------------------------------------------------------
+// Audio Steam handling for mp3 recordings
+//-----------------------------------------------------------------------------
 #pragma once
 
 #include "core/fluxGlobals.h"
@@ -13,14 +15,6 @@
 #include <fstream>
 #include <stdexcept>
 
-
-/*
- * plug into AudioHandler::OnReadFromRawBuffer =>
- *            // Copy to pBufferOut and remove from mRawBuffer
- *            memcpy(pBufferOut, self->mRawBuffer.data(), actualRead);
- *            self->mRawBuffer.erase(self->mRawBuffer.begin(), self->mRawBuffer.begin() + actualRead);
- *
- */
 
 namespace FluxRadio {
 
@@ -66,10 +60,22 @@ namespace FluxRadio {
 
         // ---------------------------------------------------------------------
         bool openFile(std::string streamTitle) {
+
+            // ~~~~ set current filename ~~~~~
+            std::string newFileName = fluxStr::addTrailingSlash(mPath) + fluxStr::sanitizeFilenameWithUnderScores(streamTitle)+".mp3";
+            if ( mCurrentFilename.compare(newFileName) == 0 ) {
+                // who cares dLog("[warn] Recording: We are already on this file ....");
+                return true;
+            }
+
+            // ~~~~ close current file stream ~~~~~
             if ( mFileStream.is_open() ) {
-                Log("[warn] File is open ! I'll close it here");
+                dLog("[warn] File is open ! I'll close it here");
                 closeFile();
             }
+
+            // new file name after close check it reset it!
+            mCurrentFilename = newFileName;
 
             // ~~~~~ check path exists / create path ~~~~~
             std::filesystem::path p(mPath);
@@ -87,14 +93,6 @@ namespace FluxRadio {
                     return false;
                 }
             }
-            // ~~~~ set current filename ~~~~~
-            std::string newFileName = fluxStr::addTrailingSlash(mPath) + fluxStr::sanitizeFilenameWithUnderScores(streamTitle)+".mp3";
-            if ( mCurrentFilename.compare(newFileName) == 0 ) {
-                Log("[warn] Recording: We are already on this file ....");
-                return true;
-            }
-            mCurrentFilename = newFileName;
-
 
             // ~~~~~ check File Space ~~~~~
             try {
@@ -124,8 +122,5 @@ namespace FluxRadio {
 
     private:
     };
-
-
-
 
 };
