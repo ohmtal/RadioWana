@@ -66,6 +66,7 @@ It still runs fine but:
         - [X] decode 
         - [X] playback
         - [X] sync title trigger with audio stream 
+        - [X] fix memory raise over time =>  rawbuffer, decoder, curl ... ?  => sanitize=address 
         
 
     - [ ] Recoding

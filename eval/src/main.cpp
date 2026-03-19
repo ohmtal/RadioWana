@@ -46,9 +46,11 @@ public:
     bool Initialize()   {
 
         mBaseFlux.mSettings = {
+            .FpsLimit = 30, // lower cpu usage...
             .WindowMaximized = true,
             .Company = "Ohmtal",
             .Caption = "RadioWana Prototype",
+
             // IconFilename is append to .AssetsPath
             // .IconFilename = "icon.bmp",
             // IniFileName : you may also use something like: "pref:/appgui.ini"

@@ -47,7 +47,7 @@ namespace RadioWana {
             std::vector<DSP::EffectType> types = {
                 DSP::EffectType::Equalizer9Band,
                 // DSP::EffectType::Limiter,
-                DSP::EffectType::SpectrumAnalyzer,
+                // high cpu usage! DSP::EffectType::SpectrumAnalyzer,
                 DSP::EffectType::VisualAnalyzer,
             };
             for (auto type : types) {
