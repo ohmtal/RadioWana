@@ -5,14 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(SDL3 REQUIRED)
-
 find_package(CURL REQUIRED)
 
-# HTTPS
-find_package(OpenSSL REQUIRED)
-if(OPENSSL_FOUND)
-    set(HTTPLIB_IS_USING_OPENSSL TRUE)
-endif()
 
 set(IMGGUI_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/imgui")
 
@@ -25,8 +19,6 @@ set( APP_SOURCES
 
     ${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/utils/errorlog.cpp
 
-    # --- miniaudio ---
-    # "${CMAKE_CURRENT_LIST_DIR}/../lib/miniaudio/miniaudio.c"
     #  --- imggui ---
     ${IMGGUI_DIR}/imgui.cpp
     ${IMGGUI_DIR}/imgui_draw.cpp
@@ -55,17 +47,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
      "${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal"
      "${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/dsp"
      "${CMAKE_CURRENT_LIST_DIR}/../lib/miniaudio"
-     "${CMAKE_CURRENT_LIST_DIR}/../lib/httplib"
      "${CMAKE_CURRENT_LIST_DIR}/../lib/json/single_include"
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC
-        $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:OpenSSL::SSL>
-        $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:OpenSSL::Crypto>)
-
-target_compile_definitions(${PROJECT_NAME} PUBLIC
-        $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:CPPHTTPLIB_OPENSSL_SUPPORT>
-        )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC IMGUI_DEFINE_MATH_OPERATORS)
 target_compile_definitions(${PROJECT_NAME} PUBLIC FLUX_ENGINE) # fake entry for DSP
