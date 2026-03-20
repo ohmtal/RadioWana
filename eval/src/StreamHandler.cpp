@@ -52,7 +52,7 @@ namespace FluxRadio {
                     if (self->OnConnected) self->OnConnected();
                 }
             }
-            dLog("[info] https got header: %s (metaint:%d) HTTP CODE: %d", header.c_str(), self->mMetaInt, http_code);
+            dLog("[info] https got header: %s (metaint:%d) HTTP CODE: %d", header.c_str(), self->mMetaInt, (int)http_code);
 
         } else {
             dLog("[info] https got header: %s", header.c_str());
@@ -176,7 +176,7 @@ namespace FluxRadio {
 
         mThread = std::thread([this]() {
             mRunning.store(true);
-            struct curl_slist *headers = NULL;
+            struct curl_slist *headers = nullptr;
             headers = curl_slist_append(headers, "Icy-MetaData: 1");
 
             CURLcode res;
@@ -186,6 +186,7 @@ namespace FluxRadio {
                 curl_easy_setopt(mCurlHandle, CURLOPT_URL, mUrl.c_str());
                 curl_easy_setopt(mCurlHandle, CURLOPT_USERAGENT, "RadioWana/2.0");
                 curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, headers);
+                curl_easy_setopt(mCurlHandle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
 
                 curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, WriteCallback);
                 curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, this);
@@ -205,16 +206,18 @@ namespace FluxRadio {
                 curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 2L);
 
                 // disable buffering
-                curl_easy_setopt(mCurlHandle, CURLOPT_BUFFERSIZE, 1L);
+                curl_easy_setopt(mCurlHandle, CURLOPT_BUFFERSIZE, 16384L);
+                curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD_BUFFERSIZE, 16384L);
 
                 res = curl_easy_perform(mCurlHandle);
 
                 if(res != CURLE_OK && res != CURLE_ABORTED_BY_CALLBACK) {
                     Log("[error] HttpStream error: %s", curl_easy_strerror(res));
                 }
-                curl_slist_free_all(headers);
                 curl_easy_cleanup(mCurlHandle);
+                mCurlHandle = nullptr;
             }
+            if (headers) curl_slist_free_all(headers);
             stop();
             mRunning.store(false);
             if (onDisConnected) onDisConnected();

@@ -61,9 +61,11 @@ It still runs fine but:
             - Ohmtal: some parts of OhmFlux
             - httplib
             - miniaudio
-    - RadioWanaProto
+    - [ ] RadioWanaProto
         - [X] fetch stream data and meta data :D 
-        - [X] decode 
+        - [ ] decode 
+            - [X] mp3 
+            - [ ] add ffmpeg backend #include "extras/miniaudio_libav.h"
         - [X] playback
         - [X] sync title trigger with audio stream 
         - [X] fix memory raise over time =>  rawbuffer, decoder, curl ... ?  => sanitize=address 
@@ -74,13 +76,14 @@ It still runs fine but:
         - [X] add checks for directory and file system full
         - [X] open/close/write stream 
         - [X] add source to main for recording
+        - [ ] add format mp3 only at the moment
         
     - [ ] radio-browser.info using Curl 
         - [~] SRV lookup _api._tcp.radio-browser.info << cross platform problem ?
             - for testing i use de1.api.radio-browser.info
-        - [ ] add a search
+        - [X] add a search
         - [ ] results of queries should be cached. 
-        - [ ] XML or JSON parsing the request results << nlohman
+        - [X] XML or JSON parsing the request results << nlohman
     
 - [ ] Final Version 
     - [ ] switch to OhmFlux agian with it's build system 

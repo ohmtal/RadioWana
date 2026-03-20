@@ -56,6 +56,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
      "${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/dsp"
      "${CMAKE_CURRENT_LIST_DIR}/../lib/miniaudio"
      "${CMAKE_CURRENT_LIST_DIR}/../lib/httplib"
+     "${CMAKE_CURRENT_LIST_DIR}/../lib/json/single_include"
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC

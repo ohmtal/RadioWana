@@ -6,6 +6,7 @@
 #define MA_NO_DEVICE_IO
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
+//FIXME  #include "extras/miniaudio_libav.h"
 
 #include "dsp/MonoProcessors/Volume.h"
 
@@ -82,7 +83,15 @@ namespace FluxRadio {
     bool AudioHandler::init(StreamInfo* info) {
         if (!info) {
             Log("[error] init StreamInfo in NULL!!");
+            return false;
         }
+
+        if (info->content_type != "audio/mpeg") {
+            //FIXME
+            Log("[error] Sorry only mp3 supported at the moment");
+        }
+
+
         mStreamInfo = info;
 
         // FIXME reconnect [error] Unable to init decoder code:-203
@@ -107,10 +116,43 @@ namespace FluxRadio {
         }
         memset(mDecoder, 0, sizeof(ma_decoder));
         ma_decoder_config config = ma_decoder_config_init(ma_format_f32, info->channels, info->samplerate);
-        config.encodingFormat = ma_encoding_format_mp3;
-        dLog("this: %p, pDecoder: %p (Inhalt)", this, (void*)mDecoder);
+
+        // ma_encoding_format_unknown = 0,
+        // ma_encoding_format_wav,
+        // ma_encoding_format_flac,
+        // ma_encoding_format_mp3,
+        // ma_encoding_format_vorbis
+
+        if (info->content_type == "audio/aac") {
+            // :/ lol bad evaluation !
+        } else {
+            // Default: audio/mpeg
+            config.encodingFormat = ma_encoding_format_mp3;
+        }
+
+
+        // dLog("this: %p, pDecoder: %p (Inhalt)", this, (void*)mDecoder);
         mDecoder->pUserData = this;
         ma_result result = ma_decoder_init(OnReadFromRawBuffer, OnSeekDummy, this, &config, mDecoder);
+
+// FIXME ffmpeg backend
+//         ma_libav_decoder_config config = ma_libav_decoder_config_init(ma_format_f32, 2, 44100);
+//
+//         ma_libav_decoder decoder;
+//         ma_result result = ma_libav_decoder_init_file("url", &config, &decoder);
+//
+//         if (result != MA_SUCCESS) {
+//
+//         }
+// ------------- CALLBACK MUST BE LIKE:
+// ma_libav_vfs_callbacks vfsCallbacks;
+// vfsCallbacks.onRead = my_vfs_read_callback;
+// vfsCallbacks.onSeek = my_vfs_seek_callback;
+//
+// ma_libav_decoder_init_vfs(my_vfs_userdata, &vfsCallbacks, &config, &decoder);
+
+
+
 
         if (result != MA_SUCCESS) {
             Log("[error] Unable to init decoder code:%d", result);

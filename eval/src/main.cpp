@@ -54,9 +54,13 @@ private:
      std::unique_ptr<FluxRadio::StreamHandler> mStreamHandler;
      std::unique_ptr<FluxRadio::AudioHandler>  mAudioHandler;
      std::unique_ptr<FluxRadio::AudioRecorder> mAudioRecorder;
+     std::unique_ptr<FluxRadio::RadioBrowser> mRadioBrowser;
 
      bool mRecording = false;
      bool mRecordingStartsOnNewTile = true;
+
+     std::vector<FluxRadio::RadioStation> mStationData;
+     std::string mSelectedStationUuid = "";
 public:
     ImConsole mConsole;
     //--------------------------------------------------------------------------
@@ -90,6 +94,8 @@ public:
         mStreamHandler = std::make_unique<FluxRadio::StreamHandler>();
         mAudioHandler  = std::make_unique<FluxRadio::AudioHandler>();
         mAudioRecorder = std::make_unique<FluxRadio::AudioRecorder>();
+        mRadioBrowser  = std::make_unique<FluxRadio::RadioBrowser>();
+
 
 
         mStreamHandler->OnConnected = [&]() {
@@ -104,6 +110,7 @@ public:
         mStreamHandler->onDisConnected = [&]() {
             if (mAudioHandler.get()) mAudioHandler->onDisConnected();
             if (mAudioRecorder.get()) mAudioRecorder->closeFile();
+            mRecording = false;
         };
 
         mAudioHandler->OnTitleTrigger = [&]() {
@@ -117,6 +124,17 @@ public:
                 mAudioRecorder->OnStreamData(buffer,bufferSize);
             }
         };
+
+
+        mRadioBrowser->OnStationResponse = [&](std::vector<FluxRadio::RadioStation> stations) {
+            mStationData = stations;
+        };
+
+        mRadioBrowser->OnStationResponseError = [&]() {
+                mStationData.clear();
+        };
+
+
 
 
         return true;
@@ -150,10 +168,10 @@ public:
             float fullWidth = ImGui::GetContentRegionAvail().x;
 
             // ImGui::SetNextItemWidth(450.f);
-            char urlBuff[256];
-            strncpy(urlBuff, mUrl.c_str(), sizeof(urlBuff));
-            if (ImGui::InputText("URL", urlBuff, sizeof(urlBuff))) {
-                mUrl = urlBuff;
+            char strBuff[256];
+            strncpy(strBuff, mUrl.c_str(), sizeof(strBuff));
+            if (ImGui::InputText("URL", strBuff, sizeof(strBuff))) {
+                mUrl = strBuff;
             }
             if ( mStreamHandler->isRunning() ) {
                 if (ImFlux::ButtonFancy("close")) {
@@ -230,6 +248,79 @@ public:
                     mStreamHandler->Execute(mUrl);
                 }
             }
+
+            ImGui::SeparatorText("radio-browser.info");
+            strncpy(strBuff, "", sizeof(strBuff));
+
+            if (ImGui::InputText("Name:", strBuff, sizeof(strBuff), ImGuiInputTextFlags_EnterReturnsTrue)) {
+                //FIXME hardcoded metal :P
+                mRadioBrowser->searchStationsByNameAndTag(strBuff, "");
+                dLog("query for %s", strBuff);
+            }
+
+            if (ImGui::BeginTable("RadioStations", 5, ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
+
+
+                ImGui::TableSetupColumn("Station");
+                ImGui::TableSetupColumn("Homepage");
+                // std::string favicon; << TODO would be cool but
+                // ImGui::TableSetupColumn("Codec"); //we can mp3 only at the moment
+                ImGui::TableSetupColumn("Clicks");
+                ImGui::TableSetupColumn("Country");
+                ImGui::TableSetupColumn("Bitrate");
+                ImGui::TableHeadersRow();
+
+                for (const auto& station : mStationData) {
+                    ImGui::PushID(station.stationuuid.c_str());
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+
+                    bool isSelected = (mSelectedStationUuid == station.stationuuid);
+
+
+
+                    if (ImGui::Selectable(station.name.c_str(), isSelected,
+                        ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick)) {
+
+                        //FIXME favo or save last
+                        mSelectedStationUuid = station.stationuuid;
+
+                        if (ImGui::IsMouseDoubleClicked(0)) {
+                            mUrl = station.url;
+                            mStreamHandler->Execute(mUrl);
+                            mRadioBrowser->clickStation(station.stationuuid);
+                        }
+                    }
+
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted(station.homepage.c_str());
+
+                    // ImGui::TableNextColumn();
+                    // ImGui::TextUnformatted(station.Codec.c_str());
+
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%d  Trend:%d",station.clickcount, station.clicktrend);
+
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted(station.countrycode.c_str());
+
+                    ImGui::TableNextColumn();
+                    if (station.bitrate >= 128) {
+                        ImGui::TextColored(ImColor(0, 255, 0), "%d kbps", station.bitrate);
+                    } else if (station.bitrate >= 64) {
+                        ImGui::TextColored(ImColor(255, 255, 0), "%d kbps", station.bitrate);
+                    } else if (station.bitrate == 0) {
+                        ImGui::TextDisabled("---");
+                    } else {
+                        ImGui::TextColored(ImColor(255, 0, 0), "%d kbps", station.bitrate);
+                    }
+
+                    ImGui::PopID(/*station.stationuuid.c_str()*/);
+                }
+                ImGui::EndTable();
+            }
+
+
 
 
         }
