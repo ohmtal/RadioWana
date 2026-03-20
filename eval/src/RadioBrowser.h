@@ -98,9 +98,10 @@ namespace FluxRadio {
 
                     stations.push_back(s);
                 }
+                dLog("Found %zu stations", stations.size());
 
                 if (OnStationResponse) OnStationResponse(std::move(stations));
-                dLog("Found %zu stations", stations.size());
+
 
             } catch (const json::parse_error& e) {
                 if (OnStationResponseError) OnStationResponseError();
@@ -139,7 +140,7 @@ namespace FluxRadio {
         void searchStationsByNameAndTag(
             std::string name,
             std::string tag = "",
-            uint8_t limit = 40,
+            uint8_t limit = 100,
             bool onlyMP3 = true
         ) {
             std::string url = "https://" + mHostname + "/json/stations/search";
