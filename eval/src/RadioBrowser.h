@@ -139,7 +139,7 @@ namespace FluxRadio {
         void searchStationsByNameAndTag(
             std::string name,
             std::string tag = "",
-            uint8_t limit = 20,
+            uint8_t limit = 40,
             bool onlyMP3 = true
         ) {
             std::string url = "https://" + mHostname + "/json/stations/search";

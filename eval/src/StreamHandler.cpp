@@ -154,6 +154,10 @@ namespace FluxRadio {
         mCurlHandle = nullptr;
         mFullHeader = "";
         mTotalAudioBytesSent = 0;
+        mStreamTitle = "";
+        mStreamTitleAudioByteNeedle = 0;
+
+
     }
     //--------------------------------------------------------------------------
     void StreamHandler::Execute(std::string url) {

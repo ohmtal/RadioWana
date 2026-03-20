@@ -289,6 +289,7 @@ namespace FluxRadio {
             memset(mDecoder, 0, sizeof(ma_decoder));
             mInitialized = false;
         }
+        mPendingStreamTitles.clear();
     }
     // -----------------------------------------------------------------------------
     void AudioHandler::OnStreamTitleUpdate(const std::string streamTitle, const size_t streamPosition){
