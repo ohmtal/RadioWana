@@ -66,7 +66,8 @@ It still runs fine but:
             - BaseFlux
             - ImGui 
             - Ohmtal: some parts of OhmFlux
-            - httplib
+            - ~~httplib~~
+            - libCurl
             - miniaudio
     - [X] RadioWanaProto
         - [X] fetch stream data and meta data :D 
