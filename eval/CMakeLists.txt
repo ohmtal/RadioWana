@@ -8,7 +8,7 @@ find_package(SDL3 REQUIRED)
 find_package(CURL REQUIRED)
 
 
-set(IMGGUI_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/imgui")
+set(IMGGUI_DIR "${CMAKE_CURRENT_LIST_DIR}/lib/imgui")
 
 # ------------- Prototype
 set( APP_SOURCES
@@ -17,7 +17,7 @@ set( APP_SOURCES
     src/AudioHandler.cpp
     src/StreamHandler.cpp
 
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/utils/errorlog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/lib/ohmtal/utils/errorlog.cpp
 
     #  --- imggui ---
     ${IMGGUI_DIR}/imgui.cpp
@@ -44,10 +44,10 @@ target_link_libraries(RadioWanaProto PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
      "${IMGGUI_DIR}"
      "${IMGGUI_DIR}/backends"
-     "${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal"
-     "${CMAKE_CURRENT_LIST_DIR}/../lib/ohmtal/dsp"
-     "${CMAKE_CURRENT_LIST_DIR}/../lib/miniaudio"
-     "${CMAKE_CURRENT_LIST_DIR}/../lib/json/single_include"
+     "${CMAKE_CURRENT_LIST_DIR}/lib/ohmtal"
+     "${CMAKE_CURRENT_LIST_DIR}/lib/ohmtal/dsp"
+     "${CMAKE_CURRENT_LIST_DIR}/lib/miniaudio"
+     "${CMAKE_CURRENT_LIST_DIR}/lib/json/single_include"
 )
 
 
