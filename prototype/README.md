@@ -1,4 +1,4 @@
-# RadioWana Prototype II
+# RadioWana II - Prototype 
 
 ## Status: Prototype finished and working. 
 
