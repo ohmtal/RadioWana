@@ -4,7 +4,7 @@
 
 Development the Final Version is moved to the OhmFlux project, because i want to add the reusable code like the gui elements to OhmFlux. 
 
-[RadioWana at OhmFlux](https://github.com/ohmtal/OhmFlux/tree/main/RadioWana)
+<!-- [RadioWana at OhmFlux](https://github.com/ohmtal/OhmFlux/tree/main/RadioWana) -->
 
 ---
 ![Prototype 2026-03-21](Screenshot_2026-03-21_01-33-31.png)
