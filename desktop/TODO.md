@@ -27,6 +27,8 @@ Limitation:
 
 ## Todos
 
+- [X] auto reconnect cause crash !
+
 - [X] MileStone Desktop Version I 
     - [X] switch to OhmFlux agian with it's build system 
     - [X] setup Project (cmake)
