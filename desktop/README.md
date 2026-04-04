@@ -2,7 +2,7 @@
 
 ## Status: Desktop Version 0.260402
 
-A cross platform Internet Radio. 
+A cross platform Internet Radio Recorder.
 
 --- 
 
