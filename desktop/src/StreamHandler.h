@@ -68,8 +68,7 @@ namespace FluxRadio {
 
         StreamHandler() = default;
         ~StreamHandler() {
-            stop();
-            if (mThread.joinable()) mThread.join();
+            shutdown();
         }
 
         bool isRunning() {return mRunning.load();}
@@ -79,15 +78,18 @@ namespace FluxRadio {
 
         std::string getHeader() const { return mFullHeader; }
 
+        void shutdown() {
+            if (mThread.joinable()) {
+                mStopRequested.store(true);
+                mThread.join();
+            };
+        }
 
 
         void stop() {
             if (mStopRequested.load()) return ;
-            if (mThread.joinable()) {
-                mStopRequested.store(true);
-                mThread.join();
-            }
-        };
+            mStopRequested.store(true);
+        }
 
 
     protected:
